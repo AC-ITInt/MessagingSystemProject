@@ -91,7 +91,7 @@ public class UserJPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
         try {
             
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(MessageSystem.ServerIP, 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();
@@ -120,7 +120,7 @@ public class UserJPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
         try {
             
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(MessageSystem.ServerIP, 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();

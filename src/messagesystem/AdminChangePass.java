@@ -126,7 +126,7 @@ public class AdminChangePass extends javax.swing.JDialog {
         char[] pass2 = jPasswordField2.getPassword();
         try {
             
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(MessageSystem.ServerIP, 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();

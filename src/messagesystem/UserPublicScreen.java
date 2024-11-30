@@ -225,7 +225,7 @@ public class UserPublicScreen extends javax.swing.JFrame {
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
         jPanel1.removeAll();
-        if (MessageSystem.sentMessages.size() > 0) {
+        if (!MessageSystem.sentMessages.isEmpty()) {
             for (Message msg : MessageSystem.sentMessages) {
                 System.out.println(msg);
                 MessageJPanel panel = new MessageJPanel(this, msg, 1);

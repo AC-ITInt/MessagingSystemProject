@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Base64;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -33,6 +32,7 @@ public class MessageSystem {
     public static LinkedList<Message> receivedMessages;
     public static LinkedList<Message> sentMessages;
     public static LinkedList<Message> searchMessages;
+    public static String ServerIP = "192.168.56.1";
 
     /**
      * @param args the command line arguments
@@ -62,7 +62,7 @@ public class MessageSystem {
     
     public static Boolean getUserList(int type) {
         try {
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(ServerIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -121,7 +121,7 @@ public class MessageSystem {
         searchMessages.clear();
         String encodedTags = Base64.getEncoder().encodeToString(tags.getBytes());
         try {
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(ServerIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -166,7 +166,7 @@ public class MessageSystem {
     
     public static Boolean retrievePublicMessages() {
         try {
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(ServerIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -263,7 +263,7 @@ public class MessageSystem {
         }
         try {
             
-            Socket server = new Socket("localhost", 2624);
+            Socket server = new Socket(ServerIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
