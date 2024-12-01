@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Base64;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -32,7 +33,8 @@ public class MessageSystem {
     public static LinkedList<Message> receivedMessages;
     public static LinkedList<Message> sentMessages;
     public static LinkedList<Message> searchMessages;
-    public static String ServerIP = "192.168.56.1";
+    private static Queue<Notification> notifQueue;
+    public static String ServerIP = "192.168.1.201";
 
     /**
      * @param args the command line arguments
@@ -56,6 +58,8 @@ public class MessageSystem {
         receivedMessages = new LinkedList<>();
         sentMessages = new LinkedList<>();
         searchMessages = new LinkedList<>();
+        
+        notifQueue = new LinkedList<>();
         
         loginDlg.setVisible(true);
     }
@@ -164,6 +168,57 @@ public class MessageSystem {
         return false;
     }
     
+    public static Boolean retrieveNotifications() {
+        try {
+            Socket server = new Socket(ServerIP, 2624);
+            
+            InputStream input = server.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            
+            PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+            
+            System.out.println("Retrieve Notification Socket Opened");
+            
+            String outgoing = "SERVER RETRIEVE NOTIFICATIONS TO " + user; 
+            System.out.println(outgoing);
+            writer.println(outgoing);
+            String incomingMessage = reader.readLine();
+            if (incomingMessage.equals("CLIENT VALID SENDING NOTIFICATIONS")) {
+                outgoing = "SERVER NOTIFICATION RETRIEVAL CONTINUE";
+                writer.println(outgoing);
+                incomingMessage = reader.readLine();
+                while (!incomingMessage.equals("CLIENT NOTIFICATION RETRIEVAL DONE")) {
+                    String[] messageArray = incomingMessage.split(" ");
+                    if (incomingMessage.startsWith("CLIENT NOTIFICATION") && messageArray.length > 3) {
+                        int type = Integer.parseInt(messageArray[2]);
+                        String encodedBody = messageArray[3];
+                        String body = new String(Base64.getDecoder().decode(encodedBody));
+                        
+                        Notification notif = new Notification(type, body);
+                        notifQueue.add(notif);
+                        System.out.println("NOTIFICATION " + body);
+                    }
+                    outgoing = "SERVER NOTIFICATION RETRIEVAL CONTINUE";
+                    writer.println(outgoing);
+                    incomingMessage = reader.readLine();
+                }
+                return true;
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
+    public static int getNotifQueueSize() {
+        return notifQueue.size();
+    }
+    
+    public static Notification pollNotification() {
+        return notifQueue.poll();
+    }
+    
     public static Boolean retrievePublicMessages() {
         try {
             Socket server = new Socket(ServerIP, 2624);
@@ -246,6 +301,8 @@ public class MessageSystem {
     
     public static void userLogin(String username) {
         user = username;
+        
+        retrieveNotifications();
         
         UserPublicScreen homeScreen = new UserPublicScreen(user);
         homeScreen.setVisible(true);

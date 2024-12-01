@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import javax.swing.JOptionPane;
 
 /**
  * ClientListener listens for server notifications and private messages.
@@ -18,6 +19,7 @@ import java.net.Socket;
 public class ClientListener implements Runnable {
     private int port;
     private Boolean active = true;
+    private static String[] messageArray;
 
     public ClientListener(int port) {
         this.port = port;
@@ -79,6 +81,13 @@ public class ClientListener implements Runnable {
             // Logic to process messages (notifications or private messages)
             if (message.startsWith("NOTIFICATION:")) {
                 System.out.println("Server Notification: " + message.substring("NOTIFICATION:".length()));
+                
+                messageArray = message.split(" ");
+                if (messageArray.length > 2) {
+                    JOptionPane.showMessageDialog(null, messageArray[2], "New Notification", Integer.parseInt(messageArray[1]));
+                } else {
+                    JOptionPane.showMessageDialog(null, message);
+                }
             } else if (message.startsWith("PRIVATE:")) {
                 System.out.println("Private Message: " + message.substring("PRIVATE:".length()));
             } else {
