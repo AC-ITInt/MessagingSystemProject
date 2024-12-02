@@ -81,8 +81,9 @@ public class ClientListener implements Runnable {
                 
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                 
-                String incomingMessage;
-                while ((incomingMessage = reader.readLine()) != null) {
+                String incomingMessage = reader.readLine();
+                System.out.println(incomingMessage);
+                while (incomingMessage != null) {
                     // Determine message type and process accordingly
                     if (incomingMessage.startsWith("NOTIFICATION ")) {
                         String[] messageArray = incomingMessage.split(" ");
