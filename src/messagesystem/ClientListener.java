@@ -81,10 +81,11 @@ public class ClientListener implements Runnable {
                 
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
                 
-                String incomingMessage = reader.readLine();
-                System.out.println(incomingMessage);
-                while (incomingMessage != null) {
+                String incomingMessage;
+                while ((incomingMessage = reader.readLine()) != null) {
                     // Determine message type and process accordingly
+                    
+                    System.out.println(incomingMessage);
                     if (incomingMessage.startsWith("NOTIFICATION ")) {
                         String[] messageArray = incomingMessage.split(" ");
                         System.out.println("Server Notification: " + incomingMessage.substring("NOTIFICATION:".length()));
@@ -136,6 +137,10 @@ public class ClientListener implements Runnable {
                             if (privateMsg != null) {
                                 String body = new String(Base64.getDecoder().decode(messageArray[4]));
                                 privateMsg.receiveMessage(body);
+                                
+                                String outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
+                                writer.println(outgoing);
+                                System.out.println(outgoing);
                             }
                         }
                     } else {

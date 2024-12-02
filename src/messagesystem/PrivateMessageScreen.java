@@ -4,6 +4,7 @@
  */
 package messagesystem;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +41,15 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
     
     public void receiveMessage(String msg) {
         JLabel receivedMsg = new JLabel(msg);
+        receivedMsg.setForeground(Color.BLUE);
+        receivedMsg.setVisible(true);
+        jPanel1.add(receivedMsg);
+        jPanel1.revalidate();
+    }
+    
+    public void addOutgoing(String msg) {
+        JLabel receivedMsg = new JLabel(msg);
+        receivedMsg.setForeground(Color.red);
         receivedMsg.setVisible(true);
         jPanel1.add(receivedMsg);
         jPanel1.revalidate();
@@ -47,11 +57,12 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
     
     public void sendFirstMessage() {
         String message = JOptionPane.showInputDialog(null, "Enter your message:", "Send Message to " + user, JOptionPane.PLAIN_MESSAGE);
+        System.out.println(message);
         if (message != null) {
             String encodedMessage = Base64.getEncoder().encodeToString(message.getBytes());
         
             try {
-                Socket server = new Socket(IP, 2624);
+                Socket server = new Socket(IP, 2004);
 
                 InputStream input = server.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -66,13 +77,16 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
                 String incomingMessage = reader.readLine();
                 System.out.println(incomingMessage);
                 if (incomingMessage.equals("CLIENT CONFIRMED SEND MESSAGE")) {
-                    outgoing = "PRIVATE MESSAGE REQUEST ANSWER " + encodedMessage + MessageSystem.getLocalIP();
+                    outgoing = "PRIVATE MESSAGE REQUEST ANSWER " + encodedMessage + " " + MessageSystem.getLocalIP();
                     writer.println(outgoing);
                     System.out.println(outgoing);
-
+                    
+                    incomingMessage = reader.readLine();
                     if (incomingMessage.equals("CLIENT PRIVATE MESSAGE RECEIVED")) {
+                        System.out.println("PM Sent and Confirmed");
                         this.setVisible(true);
                         MessageSystem.addPM(user, this);
+                        addOutgoing(message);
                     }
                 }
 
@@ -167,6 +181,35 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        String message = jTextField1.getText();
+        if (message != null) {
+            String encodedMessage = Base64.getEncoder().encodeToString(message.getBytes());
+            try {
+                Socket server = new Socket(IP, 2004);
+
+                InputStream input = server.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+                PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+
+                System.out.println("ClientServer Socket Opened");
+
+                String outgoing = "PRIVATE MESSAGE FROM " + MessageSystem.getUser() + " " + encodedMessage;
+                writer.println(outgoing);
+                System.out.println(outgoing);
+                String incomingMessage = reader.readLine();
+                System.out.println(incomingMessage);
+                if (incomingMessage.equals("CLIENT PRIVATE MESSAGE RECEIVED")) {
+                    addOutgoing(message);
+                } else {
+                    System.out.println("Error unsent");
+                }
+
+
+            } catch (IOException ex) {
+                Logger.getLogger(PrivateMessageScreen.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
