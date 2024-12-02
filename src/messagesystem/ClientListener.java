@@ -48,6 +48,7 @@ public class ClientListener implements Runnable {
                 Thread clientHandler = new Thread(new ConnectionHandler(clientSocket));
                 clientHandler.start();
             }
+            serverSocket.close();
         } catch (Exception e) {
             System.err.println("Error in ClientListener: " + e.getMessage());
         }

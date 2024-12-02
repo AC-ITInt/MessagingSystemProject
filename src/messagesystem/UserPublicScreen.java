@@ -335,6 +335,7 @@ public class UserPublicScreen extends javax.swing.JFrame {
         Notification notif = MessageSystem.pollNotification();
         if (notif != null) {
             JOptionPane.showMessageDialog(null, notif.getText(), "Notification", notif.getType());
+            jButton7.setText("Notifications (" + MessageSystem.getNotifQueueSize() + ")");
         }
     }//GEN-LAST:event_jButton7ActionPerformed
 
