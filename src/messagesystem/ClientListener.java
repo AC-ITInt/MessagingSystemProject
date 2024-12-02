@@ -5,9 +5,13 @@
 package messagesystem;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Base64;
+import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 /**
@@ -20,9 +24,14 @@ public class ClientListener implements Runnable {
     private int port;
     private Boolean active = true;
     private static String[] messageArray;
+    private static HashMap<String, PrivateMessageScreen> privateWindowMap = new HashMap<>();
+    private static Thread thread;
 
     public ClientListener(int port) {
         this.port = port;
+        
+        thread = new Thread(this);
+        thread.start();
     }
 
     @Override
@@ -43,12 +52,22 @@ public class ClientListener implements Runnable {
             System.err.println("Error in ClientListener: " + e.getMessage());
         }
     }
+    
+    public void kill(){
+        active = false;
+        thread.interrupt();
+    }
+    
+    public Boolean addPMWindow(String user, PrivateMessageScreen window) {
+        privateWindowMap.putIfAbsent(user, window);
+        return privateWindowMap.containsKey(user);
+    }
 
     /**
-     * ConnectionHandler handles individual client connections in a separate thread.
-     */
+    * ConnectionHandler handles individual client connections in a separate thread.
+    */
     private static class ConnectionHandler implements Runnable {
-        private Socket socket;
+        private final Socket socket;
 
         public ConnectionHandler(Socket socket) {
             this.socket = socket;
@@ -56,10 +75,71 @@ public class ClientListener implements Runnable {
 
         @Override
         public void run() {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try {
+                InputStream input = socket.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                
                 String incomingMessage;
                 while ((incomingMessage = reader.readLine()) != null) {
-                    handleIncomingMessage(incomingMessage);
+                    // Determine message type and process accordingly
+                    if (incomingMessage.startsWith("NOTIFICATION ")) {
+                        String[] messageArray = incomingMessage.split(" ");
+                        System.out.println("Server Notification: " + incomingMessage.substring("NOTIFICATION:".length()));
+
+                        if (messageArray.length > 2) {
+                            JOptionPane.showMessageDialog(
+                                null, messageArray[2], "New Notification", Integer.parseInt(messageArray[1]));
+                        } else {
+                            JOptionPane.showMessageDialog(null, incomingMessage);
+                        }
+                    } else if (incomingMessage.startsWith("PRIVATE MESSAGE REQUEST FROM")) {
+                        String[] messageArray = incomingMessage.split(" ");
+                        if (messageArray.length > 4) {
+                            String sendingUser = messageArray[4].trim();
+                            int confirmRequest = JOptionPane.showConfirmDialog(null, "Private Message From " + sendingUser, incomingMessage, JOptionPane.OK_CANCEL_OPTION);
+
+                            if (confirmRequest == JOptionPane.OK_OPTION) {
+                                String outgoing = "CLIENT CONFIRMED SEND MESSAGE";
+                                writer.println(outgoing);
+                                System.out.println(outgoing);
+
+                                incomingMessage = reader.readLine();
+                                System.out.println(incomingMessage);
+
+                                if (incomingMessage.startsWith("PRIVATE MESSAGE REQUEST ANSWER")) {
+                                    messageArray = incomingMessage.split(" ");
+                                    if (messageArray.length > 5) {
+                                        String body = new String(Base64.getDecoder().decode(messageArray[4]));
+                                        String IP = messageArray[5];
+
+                                        PrivateMessageScreen privateMsg = new PrivateMessageScreen(sendingUser, IP);
+                                        privateMsg.receiveMessage(body);
+                                        privateMsg.setVisible(true);
+                                        privateWindowMap.putIfAbsent(sendingUser, privateMsg);
+                                        
+                                        outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
+                                        writer.println(outgoing);
+                                        System.out.println(outgoing);
+//                                        socket.close();
+                                    }
+                                }
+                            }
+                        }
+                    } else if (incomingMessage.startsWith("PRIVATE MESSAGE FROM")) {
+                        String[] messageArray = incomingMessage.split(" ");
+                        if (messageArray.length > 4) {
+                            String sendingUser = messageArray[3].trim();
+                            PrivateMessageScreen privateMsg = privateWindowMap.get(sendingUser);
+                            if (privateMsg != null) {
+                                String body = new String(Base64.getDecoder().decode(messageArray[4]));
+                                privateMsg.receiveMessage(body);
+                            }
+                        }
+                    } else {
+                        System.out.println("Unknown message type: " + incomingMessage);
+                    }
                 }
             } catch (Exception e) {
                 System.err.println("Error while handling connection: " + e.getMessage());
@@ -69,29 +149,6 @@ public class ClientListener implements Runnable {
                 } catch (Exception e) {
                     System.err.println("Error closing socket: " + e.getMessage());
                 }
-            }
-        }
-
-        /**
-         * Processes the incoming message.
-         * 
-         * @param message The message from the client or server.
-         */
-        private void handleIncomingMessage(String message) {
-            // Logic to process messages (notifications or private messages)
-            if (message.startsWith("NOTIFICATION:")) {
-                System.out.println("Server Notification: " + message.substring("NOTIFICATION:".length()));
-                
-                messageArray = message.split(" ");
-                if (messageArray.length > 2) {
-                    JOptionPane.showMessageDialog(null, messageArray[2], "New Notification", Integer.parseInt(messageArray[1]));
-                } else {
-                    JOptionPane.showMessageDialog(null, message);
-                }
-            } else if (message.startsWith("PRIVATE:")) {
-                System.out.println("Private Message: " + message.substring("PRIVATE:".length()));
-            } else {
-                System.out.println("Unknown message type: " + message);
             }
         }
     }

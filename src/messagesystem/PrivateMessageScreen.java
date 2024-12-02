@@ -4,17 +4,81 @@
  */
 package messagesystem;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author andre
  */
 public class PrivateMessageScreen extends javax.swing.JFrame {
+    String user;
+    String IP;
 
     /**
      * Creates new form PrivateMessageScreen
      */
-    public PrivateMessageScreen() {
+    public PrivateMessageScreen(String user, String IP) {
         initComponents();
+        
+        this.user = user;
+        this.IP = IP;
+        
+        jLabel1.setText("Private Chat With " + user);
+        jPanel1.setLayout(new BoxLayout(jPanel1,BoxLayout.Y_AXIS));
+    }
+    
+    public void receiveMessage(String msg) {
+        JLabel receivedMsg = new JLabel(msg);
+        receivedMsg.setVisible(true);
+        jPanel1.add(receivedMsg);
+        jPanel1.revalidate();
+    }
+    
+    public void sendFirstMessage() {
+        String message = JOptionPane.showInputDialog(null, "Enter your message:", "Send Message to " + user, JOptionPane.PLAIN_MESSAGE);
+        String encodedMessage = Base64.getEncoder().encodeToString(message.getBytes());
+        
+        try {
+            Socket server = new Socket(IP, 2624);
+            
+            InputStream input = server.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            
+            PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+            
+            System.out.println("ClientServer Socket Opened");
+            
+            String outgoing = "PRIVATE MESSAGE REQUEST FROM " + MessageSystem.getUser();
+            writer.println(outgoing);
+            System.out.println(outgoing);
+            String incomingMessage = reader.readLine();
+            System.out.println(incomingMessage);
+            if (incomingMessage.equals("CLIENT CONFIRMED SEND MESSAGE")) {
+                outgoing = "PRIVATE MESSAGE REQUEST ANSWER " + encodedMessage + MessageSystem.getLocalIP();
+                writer.println(outgoing);
+                System.out.println(outgoing);
+                
+                if (incomingMessage.equals("CLIENT PRIVATE MESSAGE RECEIVED")) {
+                    this.setVisible(true);
+                    MessageSystem.addPM(user, this);
+                }
+            }
+            
+            
+        } catch (IOException ex) {
+            Logger.getLogger(PrivateMessageScreen.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -133,7 +197,7 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new PrivateMessageScreen().setVisible(true);
+                new PrivateMessageScreen(null, null).setVisible(true);
             }
         });
     }

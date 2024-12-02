@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -45,6 +46,7 @@ public class UserJPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         jLabel1.setText("jLabel1");
 
@@ -62,6 +64,13 @@ public class UserJPanel extends javax.swing.JPanel {
             }
         });
 
+        jButton3.setText("Message");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -73,6 +82,8 @@ public class UserJPanel extends javax.swing.JPanel {
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -82,7 +93,8 @@ public class UserJPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -112,7 +124,7 @@ public class UserJPanel extends javax.swing.JPanel {
                 System.out.println("Follow Error");
             }
         } catch (IOException ex) {
-            Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UserJPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -141,14 +153,52 @@ public class UserJPanel extends javax.swing.JPanel {
                 System.out.println("Unfollow Error");
             }
         } catch (IOException ex) {
-            Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UserJPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            // TODO add your handling code here:
+            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            server.setSoTimeout(5000);
+            
+            InputStream input = server.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            
+            PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+            
+            System.out.println("Socket Opened");
+            
+            String outgoing = "SERVER GET PMINFO FOR " + userLabel;
+            writer.println(outgoing);
+            String incomingMessage = reader.readLine();
+            if (incomingMessage.startsWith("CLIENT VALID " + userLabel)) {
+                String[] messageArray = incomingMessage.split(" ");
+                if (messageArray.length > 4) {
+                    String active = messageArray[3].trim();
+                    String IP = messageArray[4].trim();
+                    
+                    if (active.equals("ACTIVE")) {
+                        PrivateMessageScreen privateMsg = new PrivateMessageScreen(userLabel, IP);
+                        privateMsg.sendFirstMessage();
+                    } else {
+                        JOptionPane.showMessageDialog(null, userLabel + " is inactive.", "Private Message", 0);
+                    }
+                }
+            } else {
+                System.out.println("Invalid userLabel");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(UserJPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }

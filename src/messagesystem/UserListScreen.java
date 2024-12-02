@@ -14,17 +14,24 @@ import javax.swing.JFrame;
  */
 public class UserListScreen extends javax.swing.JFrame {
     String user;
+    LinkedList chosenList;
     /**
      * Creates new form UserPublicScreen
      */
     public UserListScreen(String username) {
         user = username;
-        MessageSystem.getUserList(0);
+        chosenList = MessageSystem.getUserList(0);
         MessageSystem.getUserList(1);
         MessageSystem.getUserList(2);
         initComponents();
         jPanel1.setLayout(new BoxLayout(jPanel1,BoxLayout.Y_AXIS));
-        LinkedList userList = MessageSystem.allUsers;
+        refreshList(chosenList);
+        
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    }
+    
+    public void refreshList(LinkedList userList) {
+        jPanel1.removeAll();
         for (int i = 0; i < userList.size(); i++) {
             if (!user.equals((String) userList.get(i))) {
                 Boolean followingUser = MessageSystem.followingUser.contains((String) userList.get(i));
@@ -37,8 +44,6 @@ public class UserListScreen extends javax.swing.JFrame {
         }
         this.revalidate();
         jPanel1.setVisible(true);
-        
-        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
 
     /**
@@ -110,8 +115,18 @@ public class UserListScreen extends javax.swing.JFrame {
         });
 
         jButton5.setText("Following");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         jButton6.setText("All");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -180,26 +195,7 @@ public class UserListScreen extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        jPanel1.removeAll();
-        
-        MessageSystem.getUserList(0);
-        MessageSystem.getUserList(1);
-        MessageSystem.getUserList(2);
-        
-        System.out.println("PANEL CREATED");
-        LinkedList userList = MessageSystem.allUsers;
-        for (int i = 0; i < userList.size(); i++) {
-            if (!user.equals((String) userList.get(i))) {
-                Boolean followingUser = MessageSystem.followingUser.contains((String) userList.get(i));
-                UserJPanel panel = new UserJPanel((String) userList.get(i), user, followingUser);
-                panel.setVisible(true);
-                jPanel1.add(panel);
-                jPanel1.revalidate();
-                System.out.println("PANEL ADDED");
-            }
-        }
-        this.revalidate();
-        jPanel1.setVisible(true);
+        refreshList(chosenList);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -209,7 +205,21 @@ public class UserListScreen extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        chosenList = MessageSystem.getUserList(2);
+        refreshList(chosenList);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        chosenList = MessageSystem.getUserList(1);
+        refreshList(chosenList);
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        chosenList = MessageSystem.getUserList(0);
+        refreshList(chosenList);
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     /**
      * @param args the command line arguments

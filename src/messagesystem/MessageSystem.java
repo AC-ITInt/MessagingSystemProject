@@ -34,6 +34,8 @@ public class MessageSystem {
     public static LinkedList<Message> sentMessages;
     public static LinkedList<Message> searchMessages;
     private static Queue<Notification> notifQueue;
+    private static ClientListener clientListener;
+    private static String IPAddress;
     public static String ServerIP = "192.168.1.201";
 
     /**
@@ -64,7 +66,7 @@ public class MessageSystem {
         loginDlg.setVisible(true);
     }
     
-    public static Boolean getUserList(int type) {
+    public static LinkedList getUserList(int type) {
         try {
             Socket server = new Socket(ServerIP, 2624);
             
@@ -112,13 +114,13 @@ public class MessageSystem {
                     writer.println(outgoing);
                     incomingMessage = reader.readLine();
                 }
-                return true;
+                return chosenList;
             }
             
         } catch (IOException ex) {
             Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return false;
+        return new LinkedList(null);
     }
     
     public static Boolean searchPublicMessages(String tags) {
@@ -299,8 +301,9 @@ public class MessageSystem {
 //        
 //    }
     
-    public static void userLogin(String username) {
+    public static void userLogin(String username, String IP) {
         user = username;
+        IPAddress = IP;
         
         retrieveNotifications();
         
@@ -308,8 +311,7 @@ public class MessageSystem {
         homeScreen.setVisible(true);
 //        homeScreen.setAlwaysOnTop(true);
         
-        Thread clientListener = new Thread(new ClientListener(2004));
-        clientListener.start();
+        clientListener = new ClientListener(2004);
     }
     
     public static Boolean userLogout(JFrame frame, String username) {
@@ -337,6 +339,9 @@ public class MessageSystem {
             if (incomingMessage.equals("CLIENT VALID LOGGED OUT")) {
                 System.out.println("Successful Logout");
                 frame.dispose();
+                
+                clientListener.kill();
+                clientListener = null;
                 return true;
             } else {
                 System.out.println("Logout Error");
@@ -348,4 +353,15 @@ public class MessageSystem {
         return false;
     }
     
+    public static String getLocalIP() {
+        return IPAddress;
+    }
+    
+    public static String getUser() {
+        return user;
+    }
+    
+    public static Boolean addPM(String user, PrivateMessageScreen screen) {
+        return clientListener.addPMWindow(user, screen);
+    }
 }
