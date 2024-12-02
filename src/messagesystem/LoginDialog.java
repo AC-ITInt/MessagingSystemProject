@@ -172,7 +172,7 @@ public class LoginDialog extends javax.swing.JDialog {
                 outgoing = "SERVER LOGIN " + user + " " + new String(pass);
                 writer.println(outgoing);
                 incomingMessage = reader.readLine();
-                if (incomingMessage.equals("CLIENT VALID LOGGED IN ")) {
+                if (incomingMessage.startsWith("CLIENT VALID LOGGED IN ")) {
                     String[] messageArray = incomingMessage.split(" ");
                     String IP = messageArray[4];
                     System.out.println("Logged In");

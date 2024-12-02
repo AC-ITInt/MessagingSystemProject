@@ -171,20 +171,18 @@ public class UserJPanel extends javax.swing.JPanel {
             System.out.println("Socket Opened");
             
             String outgoing = "SERVER GET PMINFO FOR " + userLabel;
+            System.out.println(outgoing);
             writer.println(outgoing);
             String incomingMessage = reader.readLine();
             if (incomingMessage.startsWith("CLIENT VALID " + userLabel)) {
                 String[] messageArray = incomingMessage.split(" ");
                 if (messageArray.length > 4) {
-                    String active = messageArray[3].trim();
                     String IP = messageArray[4].trim();
                     
-                    if (active.equals("ACTIVE")) {
-                        PrivateMessageScreen privateMsg = new PrivateMessageScreen(userLabel, IP);
-                        privateMsg.sendFirstMessage();
-                    } else {
-                        JOptionPane.showMessageDialog(null, userLabel + " is inactive.", "Private Message", 0);
-                    }
+                    PrivateMessageScreen privateMsg = new PrivateMessageScreen(userLabel, IP);
+                    privateMsg.sendFirstMessage();
+                } else {
+                    JOptionPane.showMessageDialog(null, userLabel + " is inactive.", "Private Message", 0);
                 }
             } else {
                 System.out.println("Invalid userLabel");
