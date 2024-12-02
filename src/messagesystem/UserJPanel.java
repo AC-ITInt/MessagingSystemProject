@@ -170,7 +170,7 @@ public class UserJPanel extends javax.swing.JPanel {
             
             System.out.println("Socket Opened");
             
-            String outgoing = "SERVER GET PMINFO FOR " + userLabel;
+            String outgoing = "SERVER GET PMINFO FOR " + userLabel + " " + MessageSystem.getUser();
             System.out.println(outgoing);
             writer.println(outgoing);
             String incomingMessage = reader.readLine();
