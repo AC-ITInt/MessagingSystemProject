@@ -60,11 +60,23 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
     }
     
     public void sendFirstMessage() {
-        String message = JOptionPane.showInputDialog(null, "Enter your message:", "Send Message to " + user, JOptionPane.PLAIN_MESSAGE);
-        System.out.println(message);
-        if (message != null) {
+        while (true) {
+            String message = JOptionPane.showInputDialog(null, "Enter your message:", "Send Message to " + user, JOptionPane.PLAIN_MESSAGE);
+
+            // If the user cancels the dialog, exit the method
+            if (message == null) {
+                return;
+            }
+
+            // If the message is empty, show an error dialog and loop again
+            if (message.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Message cannot be empty. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+
+            // Proceed if a valid message is entered
             String encodedMessage = Base64.getEncoder().encodeToString(message.getBytes());
-        
+
             try {
                 Socket server = new Socket(IP, 2004);
 
@@ -78,15 +90,17 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
                 String outgoing = "PRIVATE MESSAGE REQUEST FROM " + MessageSystem.getUser();
                 writer.println(outgoing);
                 System.out.println(outgoing);
+
                 String incomingMessage = reader.readLine();
                 System.out.println(incomingMessage);
-                if (incomingMessage.equals("CLIENT CONFIRMED SEND MESSAGE")) {
+
+                if ("CLIENT CONFIRMED SEND MESSAGE".equals(incomingMessage)) {
                     outgoing = "PRIVATE MESSAGE REQUEST ANSWER " + encodedMessage + " " + MessageSystem.getLocalIP();
                     writer.println(outgoing);
                     System.out.println(outgoing);
-                    
+
                     incomingMessage = reader.readLine();
-                    if (incomingMessage.equals("CLIENT PRIVATE MESSAGE RECEIVED")) {
+                    if ("CLIENT PRIVATE MESSAGE RECEIVED".equals(incomingMessage)) {
                         System.out.println("PM Sent and Confirmed");
                         this.setVisible(true);
                         MessageSystem.addPM(user, this);
@@ -94,12 +108,14 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
                     }
                 }
 
-
             } catch (IOException ex) {
                 Logger.getLogger(PrivateMessageScreen.class.getName()).log(Level.SEVERE, null, ex);
             }
+
+            break; // Exit the loop after successful message sending
         }
     }
+
     
     public void sendDisconnect() {
         if (!disabled) {

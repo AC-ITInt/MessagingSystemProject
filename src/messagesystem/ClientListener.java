@@ -97,8 +97,7 @@ public class ClientListener implements Runnable {
                         System.out.println("Server Notification: " + incomingMessage.substring("NOTIFICATION:".length()));
 
                         if (messageArray.length > 2) {
-                            JOptionPane.showMessageDialog(
-                                null, messageArray[2], "New Notification", Integer.parseInt(messageArray[1]));
+                            JOptionPane.showMessageDialog(null, messageArray[2] + " has followed you!", "New Notification", Integer.parseInt(messageArray[1]));
                         } else {
                             JOptionPane.showMessageDialog(null, incomingMessage);
                         }
