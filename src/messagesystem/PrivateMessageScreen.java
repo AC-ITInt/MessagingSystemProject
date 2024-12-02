@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -38,6 +39,8 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
         
         jLabel1.setText("Private Chat With " + user);
         jPanel1.setLayout(new BoxLayout(jPanel1,BoxLayout.Y_AXIS));
+        
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
     
     public void receiveMessage(String msg) {
