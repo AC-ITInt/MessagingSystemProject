@@ -364,4 +364,8 @@ public class MessageSystem {
     public static Boolean addPM(String user, PrivateMessageScreen screen) {
         return clientListener.addPMWindow(user, screen);
     }
+    
+    public static Boolean removePM(String user, PrivateMessageScreen screen) {
+        return clientListener.removePMWindow(user, screen);
+    }
 }

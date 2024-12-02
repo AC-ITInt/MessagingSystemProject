@@ -23,8 +23,9 @@ import javax.swing.JOptionPane;
  * @author andre
  */
 public class PrivateMessageScreen extends javax.swing.JFrame {
-    String user;
-    String IP;
+    private String user;
+    private String IP;
+    private Boolean disabled = false;
 
     /**
      * Creates new form PrivateMessageScreen
@@ -96,6 +97,45 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
             }
         }
     }
+    
+    public void sendDisconnect() {
+        if (!disabled) {
+            try {
+                Socket server = new Socket(IP, 2004);
+
+                InputStream input = server.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+                PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+
+                System.out.println("ClientServer Socket Opened");
+
+                String outgoing = "PRIVATE MESSAGE CLOSING CHAT " + MessageSystem.getUser();
+                writer.println(outgoing);
+                System.out.println(outgoing);
+                String incomingMessage = reader.readLine();
+                System.out.println(incomingMessage);
+                if (incomingMessage.equals("CLIENT PRIVATE MESSAGE CHAT DISCONNECTED")) {
+                    MessageSystem.removePM(user, this);
+                    this.dispose();
+                } else {
+                    System.out.println("Error unsent");
+                }
+
+
+            } catch (IOException ex) {
+                Logger.getLogger(PrivateMessageScreen.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            this.dispose();
+        }
+    }
+    
+    public void disableChat() {
+        jButton1.setVisible(false);
+        jTextField1.setEnabled(false);
+        disabled = true;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -113,6 +153,11 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jButton1.setText("Send");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -122,6 +167,11 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
         });
 
         jButton2.setText("Back");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Private Chat With <user>");
 
@@ -211,6 +261,16 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        sendDisconnect();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        sendDisconnect();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

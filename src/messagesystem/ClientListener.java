@@ -62,12 +62,17 @@ public class ClientListener implements Runnable {
         privateWindowMap.putIfAbsent(user, window);
         return privateWindowMap.containsKey(user);
     }
+    
+    public Boolean removePMWindow(String user, PrivateMessageScreen window) {
+        return privateWindowMap.remove(user, window);
+    }
 
     /**
     * ConnectionHandler handles individual client connections in a separate thread.
     */
     private static class ConnectionHandler implements Runnable {
         private final Socket socket;
+        private static String[] messageArray;
 
         public ConnectionHandler(Socket socket) {
             this.socket = socket;
@@ -87,7 +92,7 @@ public class ClientListener implements Runnable {
                     
                     System.out.println(incomingMessage);
                     if (incomingMessage.startsWith("NOTIFICATION ")) {
-                        String[] messageArray = incomingMessage.split(" ");
+                        messageArray = incomingMessage.split(" ");
                         System.out.println("Server Notification: " + incomingMessage.substring("NOTIFICATION:".length()));
 
                         if (messageArray.length > 2) {
@@ -97,7 +102,7 @@ public class ClientListener implements Runnable {
                             JOptionPane.showMessageDialog(null, incomingMessage);
                         }
                     } else if (incomingMessage.startsWith("PRIVATE MESSAGE REQUEST FROM")) {
-                        String[] messageArray = incomingMessage.split(" ");
+                        messageArray = incomingMessage.split(" ");
                         if (messageArray.length > 4) {
                             String sendingUser = messageArray[4].trim();
                             int confirmRequest = JOptionPane.showConfirmDialog(null, "Private Message From " + sendingUser, incomingMessage, JOptionPane.OK_CANCEL_OPTION);
@@ -130,7 +135,7 @@ public class ClientListener implements Runnable {
                             }
                         }
                     } else if (incomingMessage.startsWith("PRIVATE MESSAGE FROM")) {
-                        String[] messageArray = incomingMessage.split(" ");
+                        messageArray = incomingMessage.split(" ");
                         if (messageArray.length > 4) {
                             String sendingUser = messageArray[3].trim();
                             PrivateMessageScreen privateMsg = privateWindowMap.get(sendingUser);
@@ -141,6 +146,22 @@ public class ClientListener implements Runnable {
                                 String outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
                                 writer.println(outgoing);
                                 System.out.println(outgoing);
+                            }
+                        }
+                    } else if (incomingMessage.startsWith("PRIVATE MESSAGE CLOSING CHAT")) {
+                        messageArray = incomingMessage.split(" ");
+                        if (messageArray.length > 4) {
+                            String sendingUser = messageArray[4].trim();
+                            PrivateMessageScreen privateMsg = privateWindowMap.get(sendingUser);
+                            if (privateMsg != null) {
+                                privateMsg.receiveMessage("USER HAS DISCONNECTED");
+                                
+                                String outgoing = "CLIENT PRIVATE MESSAGE CHAT DISCONNECTED";
+                                writer.println(outgoing);
+                                System.out.println(outgoing);
+                                
+                                privateMsg.disableChat();
+                                privateWindowMap.remove(sendingUser, privateMsg);
                             }
                         }
                     } else {
