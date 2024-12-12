@@ -352,6 +352,7 @@ public class MessageSystem {
                         } else {
                             MessageSystem.userLogout(frame, username);
                             sentMessages.clear();
+                            receivedMessages.clear();
                             loginDlg.setVisible(true);
                         }
                     } catch (IOException ex) {
