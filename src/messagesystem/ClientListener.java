@@ -213,14 +213,10 @@ public class ClientListener implements Runnable {
                                 PrivateMessageScreen privateMsg = privateWindowMap.get(sendingUser);
                                 if (privateMsg != null) {
                                     privateMsg.receiveMessage("USER HAS DISCONNECTED");
-
-                                    String outgoing = "CLIENT PRIVATE MESSAGE CHAT DISCONNECTED";
-                                    writer.println(outgoing);
-                                    System.out.println(outgoing);
+                                    socket.close();
 
                                     privateMsg.disableChat();
                                     privateWindowMap.remove(sendingUser, privateMsg);
-                                    socket.close();
                                 }
                             }
                         } else {
