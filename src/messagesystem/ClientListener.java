@@ -174,6 +174,8 @@ public class ClientListener implements Runnable {
                                                 outgoing = "CLIENT PRIVATE MESSAGE CONTINUE RECEIVED";
                                                 writer.println(outgoing);
                                                 System.out.println(outgoing);
+                                                
+                                                socket.close();
                                             } else {
                                                 privateMsg = new PrivateMessageScreen(sendingUser, IP);
                                                 privateMsg.receiveMessage(body);
@@ -183,6 +185,7 @@ public class ClientListener implements Runnable {
                                                 outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
                                                 writer.println(outgoing);
                                                 System.out.println(outgoing);
+                                                socket.close();
                                             }
                                         }
                                     }
@@ -200,6 +203,7 @@ public class ClientListener implements Runnable {
                                     String outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
                                     writer.println(outgoing);
                                     System.out.println(outgoing);
+                                    socket.close();
                                 }
                             }
                         } else if (incomingMessage.startsWith("PRIVATE MESSAGE CLOSING CHAT")) {
@@ -216,6 +220,7 @@ public class ClientListener implements Runnable {
 
                                     privateMsg.disableChat();
                                     privateWindowMap.remove(sendingUser, privateMsg);
+                                    socket.close();
                                 }
                             }
                         } else {
