@@ -26,7 +26,7 @@ import javax.swing.JOptionPane;
 public class PrivateMessageScreen extends javax.swing.JFrame {
     private String user;
     private String IP;
-    private Boolean disabled = false;
+    private static Boolean disabled = false;
 
     /**
      * Creates new form PrivateMessageScreen
@@ -154,6 +154,10 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
         jButton1.setVisible(false);
         jTextField1.setEnabled(false);
         disabled = true;
+    }
+    
+    public static boolean isDisabled() {
+        return disabled;
     }
 
     /**

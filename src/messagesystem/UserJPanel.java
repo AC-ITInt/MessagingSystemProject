@@ -158,37 +158,47 @@ public class UserJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        try {
-            // TODO add your handling code here:
-            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
-            server.setSoTimeout(5000);
-            
-            InputStream input = server.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            
-            PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
-            
-            System.out.println("Socket Opened");
-            
-            String outgoing = "SERVER GET PMINFO FOR " + userLabel + " " + MessageSystem.getUser();
-            System.out.println(outgoing);
-            writer.println(outgoing);
-            String incomingMessage = reader.readLine();
-            if (incomingMessage.startsWith("CLIENT VALID " + userLabel)) {
-                String[] messageArray = incomingMessage.split(" ");
-                if (messageArray.length > 4) {
-                    String IP = messageArray[4].trim();
-                    
-                    PrivateMessageScreen privateMsg = new PrivateMessageScreen(userLabel, IP);
-                    privateMsg.sendFirstMessage();
-                } else {
-                    JOptionPane.showMessageDialog(null, userLabel + " is inactive.", "Private Message", 0);
-                }
+        PrivateMessageScreen privateMsg;
+        if (ClientListener.chatExists(userLabel)) {
+            privateMsg = ClientListener.getChatScreen(userLabel);
+            if (!privateMsg.isDisabled()) {
+                privateMsg.setVisible(true);
             } else {
-                System.out.println("Invalid userLabel");
+                JOptionPane.showMessageDialog(null, "Please close chat to continue", "Private Message Error", 0);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(UserJPanel.class.getName()).log(Level.SEVERE, null, ex);
+        } else {
+            try {
+                // TODO add your handling code here:
+                Socket server = new Socket(MessageSystem.getServerIP(), 2624);
+                server.setSoTimeout(5000);
+
+                InputStream input = server.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+                PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+
+                System.out.println("Socket Opened");
+
+                String outgoing = "SERVER GET PMINFO FOR " + userLabel + " " + MessageSystem.getUser();
+                System.out.println(outgoing);
+                writer.println(outgoing);
+                String incomingMessage = reader.readLine();
+                if (incomingMessage.startsWith("CLIENT VALID " + userLabel)) {
+                    String[] messageArray = incomingMessage.split(" ");
+                    if (messageArray.length > 4) {
+                        String IP = messageArray[4].trim();
+
+                        privateMsg = new PrivateMessageScreen(userLabel, IP);
+                        privateMsg.sendFirstMessage();
+                    } else {
+                        JOptionPane.showMessageDialog(null, userLabel + " is inactive.", "Private Message", 0);
+                    }
+                } else {
+                    System.out.println("Invalid userLabel");
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(UserJPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 

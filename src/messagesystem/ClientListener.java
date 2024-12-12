@@ -92,6 +92,14 @@ public class ClientListener implements Runnable {
     public Boolean removePMWindow(String user, PrivateMessageScreen window) {
         return privateWindowMap.remove(user, window);
     }
+    
+    public static Boolean chatExists(String user) {
+        return privateWindowMap.containsKey(user);
+    }
+    
+    public static PrivateMessageScreen getChatScreen(String user) {
+        return privateWindowMap.get(user);
+    }
 
     /**
     * ConnectionHandler handles individual client connections in a separate thread.
@@ -159,16 +167,23 @@ public class ClientListener implements Runnable {
                                         if (messageArray.length > 5) {
                                             String body = new String(Base64.getDecoder().decode(messageArray[4]));
                                             String IP = messageArray[5];
+                                            PrivateMessageScreen privateMsg;
+                                            if (privateWindowMap.containsKey(sendingUser)) {
+                                                privateMsg = privateWindowMap.get(sendingUser);
+                                                privateMsg.receiveMessage(body);
+                                                outgoing = "CLIENT PRIVATE MESSAGE CONTINUE RECEIVED";
+                                                writer.println(outgoing);
+                                                System.out.println(outgoing);
+                                            } else {
+                                                privateMsg = new PrivateMessageScreen(sendingUser, IP);
+                                                privateMsg.receiveMessage(body);
+                                                privateMsg.setVisible(true);
+                                                privateWindowMap.put(sendingUser, privateMsg);
 
-                                            PrivateMessageScreen privateMsg = new PrivateMessageScreen(sendingUser, IP);
-                                            privateMsg.receiveMessage(body);
-                                            privateMsg.setVisible(true);
-                                            privateWindowMap.putIfAbsent(sendingUser, privateMsg);
-
-                                            outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
-                                            writer.println(outgoing);
-                                            System.out.println(outgoing);
-    //                                        socket.close();
+                                                outgoing = "CLIENT PRIVATE MESSAGE RECEIVED";
+                                                writer.println(outgoing);
+                                                System.out.println(outgoing);
+                                            }
                                         }
                                     }
                                 }
