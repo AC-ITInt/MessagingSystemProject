@@ -165,6 +165,7 @@ public class UserJPanel extends javax.swing.JPanel {
                 privateMsg.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(null, "Please close chat to continue", "Private Message Error", 0);
+                privateMsg.setVisible(true);
             }
         } else {
             try {
