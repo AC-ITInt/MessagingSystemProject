@@ -13,20 +13,27 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author andre
  */
 public class RegisterUser extends javax.swing.JDialog {
-    LoginDialog loginDlg;
     /**
      * Creates new form RegisterUser
      */
-    public RegisterUser(java.awt.Frame parent, boolean modal, LoginDialog dlg) {
+    public RegisterUser(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        loginDlg = dlg;
         initComponents();
+        
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    }
+    
+    private void registrationError() {
+        System.out.println("Registration Error");
+        JOptionPane.showMessageDialog(this, "Registration Error", "Registration Invalid", 0);
     }
 
     /**
@@ -47,12 +54,16 @@ public class RegisterUser extends javax.swing.JDialog {
         jButton2 = new javax.swing.JButton();
         jPasswordField1 = new javax.swing.JPasswordField();
         jPasswordField2 = new javax.swing.JPasswordField();
-        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 formComponentShown(evt);
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
             }
         });
 
@@ -85,9 +96,6 @@ public class RegisterUser extends javax.swing.JDialog {
 
         jPasswordField2.setText("jPasswordField2");
 
-        jLabel5.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel5.setText("Registration Failed!");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -100,7 +108,6 @@ public class RegisterUser extends javax.swing.JDialog {
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
                             .addComponent(jLabel4)
-                            .addComponent(jLabel5)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jPasswordField1, javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,9 +137,7 @@ public class RegisterUser extends javax.swing.JDialog {
                 .addComponent(jLabel3)
                 .addGap(1, 1, 1)
                 .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(3, 3, 3)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
@@ -153,12 +158,13 @@ public class RegisterUser extends javax.swing.JDialog {
         char[] pass = jPasswordField1.getPassword();
         char[] pass2 = jPasswordField2.getPassword();
         if (!Arrays.equals(pass, pass2)) {
-            jLabel5.setVisible(true);
+            
+            registrationError();
             return;
         }
         try {
             
-            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();
@@ -180,13 +186,11 @@ public class RegisterUser extends javax.swing.JDialog {
                     String IP = messageArray[4];
                     System.out.println("Logged In");
                     MessageSystem.userLogin(user, IP);
-                    jLabel5.setVisible(false);
-                    loginDlg.setVisible(false);
+                    MessageSystem.showLoginDlg(false);
                     this.setVisible(false);
                 }
             } else {
-                System.out.println("Registration Error");
-                jLabel5.setVisible(true);
+                registrationError();
             }
         } catch (IOException ex) {
             Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
@@ -195,11 +199,15 @@ public class RegisterUser extends javax.swing.JDialog {
 
     private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
         // TODO add your handling code here:
-        jLabel5.setVisible(false);
         jTextField1.setText("");
         jPasswordField1.setText("");
         jPasswordField2.setText("");
     }//GEN-LAST:event_formComponentShown
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.setVisible(false);
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -231,7 +239,7 @@ public class RegisterUser extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                RegisterUser dialog = new RegisterUser(new javax.swing.JFrame(), true, null);
+                RegisterUser dialog = new RegisterUser(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -250,7 +258,6 @@ public class RegisterUser extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JPasswordField jPasswordField2;
     private javax.swing.JTextField jTextField1;

@@ -19,8 +19,8 @@ import javax.swing.JOptionPane;
  * @author andre
  */
 public class UserJPanel extends javax.swing.JPanel {
-    String userLabel;
-    String activeUser;
+    private String userLabel;
+    private String activeUser;
 
     /**
      * Creates new form UserJPanel
@@ -103,7 +103,7 @@ public class UserJPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
         try {
             
-            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();
@@ -117,7 +117,7 @@ public class UserJPanel extends javax.swing.JPanel {
             writer.println(outgoing);
             String incomingMessage = reader.readLine();
             if (incomingMessage.equals("CLIENT VALID FOLLOWED")) {
-                MessageSystem.followingUser.add(userLabel);
+                MessageSystem.addFollower(userLabel);
                 jButton1.setVisible(false);
                 jButton2.setVisible(true);
             } else {
@@ -132,7 +132,7 @@ public class UserJPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
         try {
             
-            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();
@@ -146,7 +146,7 @@ public class UserJPanel extends javax.swing.JPanel {
             writer.println(outgoing);
             String incomingMessage = reader.readLine();
             if (incomingMessage.equals("CLIENT VALID UNFOLLOWED")) {
-                MessageSystem.followingUser.remove(userLabel);
+                MessageSystem.removeFollower(userLabel);
                 jButton1.setVisible(true);
                 jButton2.setVisible(false);
             } else {
@@ -160,7 +160,7 @@ public class UserJPanel extends javax.swing.JPanel {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
             // TODO add your handling code here:
-            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();

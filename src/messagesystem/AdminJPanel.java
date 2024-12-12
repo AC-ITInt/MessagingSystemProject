@@ -11,8 +11,8 @@ import javax.swing.JFrame;
  * @author andre
  */
 public class AdminJPanel extends javax.swing.JPanel {
-    String userLabel;
-    JFrame parentFrame;
+    private String userLabel;
+    private JFrame parentFrame;
     /**
      * Creates new form AdminJPanel
      */

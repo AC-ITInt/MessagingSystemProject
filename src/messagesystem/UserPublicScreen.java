@@ -4,6 +4,7 @@
  */
 package messagesystem;
 
+import java.util.LinkedList;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,7 +14,8 @@ import javax.swing.JOptionPane;
  * @author andre
  */
 public class UserPublicScreen extends javax.swing.JFrame {
-    String user;
+    private String user;
+    private LinkedList<Message> msgList;
     /**
      * Creates new form UserPublicScreen
      */
@@ -22,6 +24,7 @@ public class UserPublicScreen extends javax.swing.JFrame {
         initComponents();
         
         jPanel1.setLayout(new BoxLayout(jPanel1,BoxLayout.Y_AXIS));
+        jPanel1.setSize(jScrollPane1.getSize());
         jButton7.setText("Notifications (" + MessageSystem.getNotifQueueSize() + ")");
         
         refreshMessages();
@@ -32,9 +35,10 @@ public class UserPublicScreen extends javax.swing.JFrame {
     public void refreshMessages() {
         jPanel1.removeAll();
         if (MessageSystem.retrievePublicMessages()) {
-            for (Message msg : MessageSystem.receivedMessages) {
+            msgList = MessageSystem.getMessageList(1);
+            for (Message msg : msgList) {
                 System.out.println(msg);
-                MessageJPanel panel = new MessageJPanel(this, msg, 0);
+                MessageJPanel panel = new MessageJPanel(this, msg);
                 panel.setVisible(true);
                 jPanel1.add(panel);
 //                MessageSystem.messageQueue.poll();
@@ -56,13 +60,14 @@ public class UserPublicScreen extends javax.swing.JFrame {
 
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
         jButton7 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -89,17 +94,6 @@ public class UserPublicScreen extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 291, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 200, Short.MAX_VALUE)
-        );
 
         jButton3.setText("New Messages");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -148,6 +142,19 @@ public class UserPublicScreen extends javax.swing.JFrame {
             }
         });
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 320, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 215, Short.MAX_VALUE)
+        );
+
+        jScrollPane1.setViewportView(jPanel1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -155,15 +162,10 @@ public class UserPublicScreen extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap(168, Short.MAX_VALUE)
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(65, 65, 65)
-                                .addComponent(jButton6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton4)))
+                        .addGap(65, 65, 65)
+                        .addComponent(jButton6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
+                        .addComponent(jButton4)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(45, 45, 45)
@@ -183,6 +185,10 @@ public class UserPublicScreen extends javax.swing.JFrame {
                         .addComponent(jButton5)
                         .addGap(197, 197, 197)))
                 .addGap(15, 15, 15))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(127, 127, 127)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -194,14 +200,11 @@ public class UserPublicScreen extends javax.swing.JFrame {
                         .addComponent(jButton5)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton7)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton7)
+                .addGap(2, 2, 2)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
                     .addComponent(jButton4)
@@ -246,10 +249,11 @@ public class UserPublicScreen extends javax.swing.JFrame {
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
         jPanel1.removeAll();
-        if (!MessageSystem.sentMessages.isEmpty()) {
-            for (Message msg : MessageSystem.sentMessages) {
+        msgList = MessageSystem.getMessageList(2);
+        if (!msgList.isEmpty()) {
+            for (Message msg : msgList) {
                 System.out.println(msg);
-                MessageJPanel panel = new MessageJPanel(this, msg, 1);
+                MessageJPanel panel = new MessageJPanel(this, msg);
                 panel.setVisible(true);
                 jPanel1.add(panel);
             }
@@ -311,12 +315,13 @@ public class UserPublicScreen extends javax.swing.JFrame {
         String tags = jTextField1.getText();
         if (tags.length() > 0) {
             if (MessageSystem.searchPublicMessages(tags)) {
-                int resultNum = MessageSystem.searchMessages.size();
+                msgList = MessageSystem.getMessageList(0);
+                int resultNum = msgList.size();
                 JOptionPane.showMessageDialog(this, "Your search yielded " + resultNum + " results.", "Search Results", 3);
                 jPanel1.removeAll();
-                for (Message msg : MessageSystem.searchMessages) {
+                for (Message msg : msgList) {
                     System.out.println(msg);
-                    MessageJPanel panel = new MessageJPanel(this, msg, 1);
+                    MessageJPanel panel = new MessageJPanel(this, msg);
                     panel.setVisible(true);
                     jPanel1.add(panel);
     //                MessageSystem.messageQueue.poll();
@@ -383,6 +388,7 @@ public class UserPublicScreen extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

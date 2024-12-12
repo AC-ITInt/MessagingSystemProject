@@ -19,13 +19,17 @@ import javax.swing.JOptionPane;
  * @author andre
  */
 public class LoginDialog extends javax.swing.JDialog {
-    RegisterUser regDlg;
     /**
      * Creates new form LoginDialog
      */
     public LoginDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+    }
+    
+    private void loginError(){
+        System.out.println("Login Error");
+        JOptionPane.showMessageDialog(rootPane, "Login Invalid", "Login Error", 0);
     }
 
     /**
@@ -45,7 +49,6 @@ public class LoginDialog extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jPasswordField1 = new javax.swing.JPasswordField();
-        jLabel4 = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
@@ -82,9 +85,6 @@ public class LoginDialog extends javax.swing.JDialog {
 
         jLabel3.setText("Password");
 
-        jLabel4.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel4.setText("Login Failed!");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -102,8 +102,7 @@ public class LoginDialog extends javax.swing.JDialog {
                     .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(jPasswordField1)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPasswordField1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -119,9 +118,7 @@ public class LoginDialog extends javax.swing.JDialog {
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
                     .addComponent(jButton3))
@@ -135,7 +132,8 @@ public class LoginDialog extends javax.swing.JDialog {
        // TODO add your handling code here:
         String user = jTextField1.getText();
         char[] pass = jPasswordField1.getPassword();
-        if (user.equals("admin")) {
+//        System.out.println(pass.);
+        if (user.equals("admin") && new String(pass).equals("admin")) {
 //                String outgoing = "SERVER ADMIN LOGIN";
 //                writer.println(outgoing);
             String riddle = JOptionPane.showInputDialog("What is the air-speed velocity of an unladen swallow?", DISPOSE_ON_CLOSE);
@@ -143,16 +141,15 @@ public class LoginDialog extends javax.swing.JDialog {
                 AdminHome adminScreen = new AdminHome();
                 adminScreen.setVisible(true);
                 this.setVisible(false);
-                MessageSystem.user = "admin";
+                MessageSystem.setUser("admin");
             } else {
-                System.out.println("Login Error");
-                jLabel4.setVisible(true);
+                loginError();
             }
             return;
         }
         try {
             
-            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();
@@ -177,15 +174,12 @@ public class LoginDialog extends javax.swing.JDialog {
                     String IP = messageArray[4];
                     System.out.println("Logged In");
                     MessageSystem.userLogin(user, IP);
-                    jLabel4.setVisible(false);
                     this.setVisible(false);
                 } else {   
-                    System.out.println("Login Error");
-                    jLabel4.setVisible(true);
+                    loginError();
                 }
             } else {
-                System.out.println("Login Error");
-                jLabel4.setVisible(true);
+                loginError();
             }
         } catch (IOException ex) {
             Logger.getLogger(LoginDialog.class.getName()).log(Level.SEVERE, null, ex);
@@ -194,7 +188,7 @@ public class LoginDialog extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        regDlg.setVisible(true);
+        MessageSystem.showRegisterDlg(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -204,7 +198,6 @@ public class LoginDialog extends javax.swing.JDialog {
 
     private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
         // TODO add your handling code here:
-        jLabel4.setVisible(false);
         jTextField1.setText("");
         jPasswordField1.setText("");
     }//GEN-LAST:event_formComponentShown
@@ -258,7 +251,6 @@ public class LoginDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables

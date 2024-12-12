@@ -23,20 +23,20 @@ import javax.swing.JOptionPane;
  * @author andre
  */
 public class MessageSystem {
-    static LoginDialog loginDlg; //Login dialog
-    static RegisterUser register; //Register dialog
+    private static LoginDialog loginDlg; //Login dialog
+    private static RegisterUser register; //Register dialog
     
-    public static String user;
-    public static LinkedList<String> allUsers;
-    public static LinkedList<String> followingUser;
-    public static LinkedList<String> followersUser;
-    public static LinkedList<Message> receivedMessages;
-    public static LinkedList<Message> sentMessages;
-    public static LinkedList<Message> searchMessages;
+    private static String user;
+    private static LinkedList<String> allUsers;
+    private static LinkedList<String> followingUser;
+    private static LinkedList<String> followersUser;
+    private static LinkedList<Message> receivedMessages;
+    private static LinkedList<Message> sentMessages;
+    private static LinkedList<Message> searchMessages;
     private static Queue<Notification> notifQueue;
     private static ClientListener clientListener;
     private static String IPAddress;
-    public static String ServerIP = "216.159.153.130";//"192.168.1.201";
+    private static String serverIP = "192.168.1.201";//"216.159.154.66";
 
     /**
      * @param args the command line arguments
@@ -47,10 +47,10 @@ public class MessageSystem {
         loginDlg = new LoginDialog(null, true);
         loginDlg.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
-        register = new RegisterUser(null, true, loginDlg);
+        register = new RegisterUser(null, true);
         register.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
-        loginDlg.regDlg = register;
+//        loginDlg.regDlg = register;
         
         
         allUsers = new LinkedList<String>();
@@ -66,9 +66,64 @@ public class MessageSystem {
         loginDlg.setVisible(true);
     }
     
+    public static void showRegisterDlg(Boolean show) {
+        register.setVisible(show);
+    }
+    
+    public static void showLoginDlg (Boolean show) {
+        loginDlg.setVisible(show);
+    }
+    
+    public static String getServerIP() {
+        return serverIP;
+    }
+    
+    public static void setUser(String user) {
+        user = "admin";
+    }
+    
+    public static boolean isAFollower(String user) {
+        return followingUser.contains(user);
+    }
+    
+    public static void addFollower(String user) {
+        followingUser.add(user);
+    }
+    
+    public static void removeFollower(String user) {
+        followingUser.remove(user);
+    }
+    
+    public static LinkedList<Message> getReceivedMessages(){
+        return receivedMessages;
+    }
+    
+    public static LinkedList<Message> getSentMessages(){
+        return sentMessages;
+    }
+    
+    public static LinkedList<Message> getMessageList(int list){
+        switch (list) {
+            case 1 -> {
+                return receivedMessages;
+            }
+            case 2 -> {
+                return sentMessages;
+            }
+            default -> {
+                return searchMessages;
+            }
+        }
+    }
+    
+    public static void addSentMessage(Message msg) {
+        sentMessages.add(msg);
+    }
+    
+    
     public static LinkedList getUserList(int type) {
         try {
-            Socket server = new Socket(ServerIP, 2624);
+            Socket server = new Socket(serverIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -127,7 +182,7 @@ public class MessageSystem {
         searchMessages.clear();
         String encodedTags = Base64.getEncoder().encodeToString(tags.getBytes());
         try {
-            Socket server = new Socket(ServerIP, 2624);
+            Socket server = new Socket(serverIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -172,7 +227,7 @@ public class MessageSystem {
     
     public static Boolean retrieveNotifications() {
         try {
-            Socket server = new Socket(ServerIP, 2624);
+            Socket server = new Socket(serverIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -223,7 +278,7 @@ public class MessageSystem {
     
     public static Boolean retrievePublicMessages() {
         try {
-            Socket server = new Socket(ServerIP, 2624);
+            Socket server = new Socket(serverIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -276,11 +331,32 @@ public class MessageSystem {
                 if (type == 0) {
                     MessageSystem.userLogout(frame, username);
                     sentMessages.clear();
+                    receivedMessages.clear();
                     System.exit(0);
                 } else if (type == 1) {
-                    MessageSystem.userLogout(frame, username);
-                    sentMessages.clear();
-                    loginDlg.setVisible(true);
+                    try { //open local connection to close thread
+                        Socket server = new Socket("localhost", 2004);
+                        
+                        InputStream input = server.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+                        PrintWriter writer = new PrintWriter(server.getOutputStream(), true);
+
+                        System.out.println("Close ClientListener socket opened");
+
+                        String outgoing = "CLIENTSERVER SHUTDOWN " + user;
+                        writer.println(outgoing);
+                        String incomingMessage = reader.readLine();
+                        if (!incomingMessage.equals("CLIENT VALID SHUTTING DOWN")) {
+                            System.out.println("ClientListener shutdown error");
+                        } else {
+                            MessageSystem.userLogout(frame, username);
+                            sentMessages.clear();
+                            loginDlg.setVisible(true);
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(MessageSystem.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
             case JOptionPane.CANCEL_OPTION -> {
@@ -322,7 +398,7 @@ public class MessageSystem {
         }
         try {
             
-            Socket server = new Socket(ServerIP, 2624);
+            Socket server = new Socket(serverIP, 2624);
             
             InputStream input = server.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -339,9 +415,6 @@ public class MessageSystem {
             if (incomingMessage.equals("CLIENT VALID LOGGED OUT")) {
                 System.out.println("Successful Logout");
                 frame.dispose();
-                
-                clientListener.kill();
-                clientListener = null;
                 return true;
             } else {
                 System.out.println("Logout Error");

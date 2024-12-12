@@ -11,13 +11,25 @@ import java.util.Set;
  * @author andre
  */
 public class Message {
-    String from;
-    String body;
-    String tags;
+    private String from;
+    private String body;
+    private String tags;
     
     public Message(String from, String body, String tags) {
         this.from = from;
         this.body = body;
         this.tags = tags;
+    }
+    
+    public String getSender() {
+        return from;
+    }
+    
+    public String getBody() {
+        return body;
+    }
+    
+    public String getTags() {
+        return tags;
     }
 }

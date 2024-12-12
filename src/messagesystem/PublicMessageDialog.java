@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
  * @author andre
  */
 public class PublicMessageDialog extends javax.swing.JDialog {
-    static String user;
+    private static String user;
 
     /**
      * Creates new form PublicMessageDialog
@@ -177,7 +177,7 @@ public class PublicMessageDialog extends javax.swing.JDialog {
         
         try {
             
-            Socket server = new Socket(MessageSystem.ServerIP, 2624);
+            Socket server = new Socket(MessageSystem.getServerIP(), 2624);
             server.setSoTimeout(5000);
             
             InputStream input = server.getInputStream();
@@ -193,7 +193,7 @@ public class PublicMessageDialog extends javax.swing.JDialog {
             if (incomingMessage.equals("CLIENT VALID MESSAGE SENT")) {
                 System.out.println("Message Sent");
                 Message sentMsg = new Message(user, body, tags);
-                MessageSystem.sentMessages.add(sentMsg);
+                MessageSystem.addSentMessage(sentMsg);
                 dispose();
             } else if (incomingMessage.equals("CLIENT MESSAGE INVALID NO BODY")){
                 JOptionPane.showMessageDialog(this, "Please include a body in your message", "No Body", JOptionPane.ERROR_MESSAGE);

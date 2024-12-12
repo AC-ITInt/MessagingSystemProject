@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import static messagesystem.MessageSystem.loginDlg;
 
 /**
  *
@@ -29,10 +28,9 @@ public class AdminHome extends javax.swing.JFrame {
      */
     public AdminHome() {
         initComponents();
-        MessageSystem.getUserList(0);
         jPanel1.setLayout(new BoxLayout(jPanel1,BoxLayout.Y_AXIS));
         System.out.println("PANEL CREATED");
-        LinkedList userList = MessageSystem.allUsers;
+        LinkedList userList = MessageSystem.getUserList(0);
         for (int i = 0; i < userList.size(); i++) {
             AdminJPanel panel = new AdminJPanel((String) userList.get(i), this);
             panel.setVisible(true);
@@ -137,7 +135,7 @@ public class AdminHome extends javax.swing.JFrame {
         if (confirmDlg == JOptionPane.OK_OPTION) {
             try {
 
-                Socket server = new Socket(MessageSystem.ServerIP, 2624);
+                Socket server = new Socket(MessageSystem.getServerIP(), 2624);
                 server.setSoTimeout(5000);
 
                 InputStream input = server.getInputStream();
