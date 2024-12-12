@@ -137,6 +137,7 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
                 System.out.println(incomingMessage);
                 if (incomingMessage.equals("CLIENT PRIVATE MESSAGE CHAT DISCONNECTED")) {
                     MessageSystem.removePM(user, this);
+                    server.close();
                     this.dispose();
                 } else {
                     System.out.println("Error unsent");
