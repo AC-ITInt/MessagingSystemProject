@@ -36,7 +36,7 @@ public class MessageSystem {
     private static Queue<Notification> notifQueue;
     private static ClientListener clientListener;
     private static String IPAddress;
-    private static String serverIP = "192.168.1.201";//"216.159.154.66";
+    private static String serverIP = "216.159.153.136";//"192.168.1.201";
 
     /**
      * @param args the command line arguments
