@@ -71,8 +71,9 @@ public class ClientListener implements Runnable {
             value.dispose();
         });
         privateWindowMap.clear();
-        active = false;
         System.out.println("ClientListener Killed");
+        
+        active = false;
         try {
             Socket self = new Socket("localhost", 2004);
             //thread.interrupt();
@@ -207,13 +208,13 @@ public class ClientListener implements Runnable {
                                 }
                             }
                         } else if (incomingMessage.startsWith("PRIVATE MESSAGE CLOSING CHAT")) {
+                            socket.close();
                             messageArray = incomingMessage.split(" ");
                             if (messageArray.length > 4) {
                                 String sendingUser = messageArray[4].trim();
                                 PrivateMessageScreen privateMsg = privateWindowMap.get(sendingUser);
                                 if (privateMsg != null) {
                                     privateMsg.receiveMessage("USER HAS DISCONNECTED");
-                                    socket.close();
 
                                     privateMsg.disableChat();
                                     privateWindowMap.remove(sendingUser, privateMsg);

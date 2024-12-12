@@ -133,15 +133,10 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
                 String outgoing = "PRIVATE MESSAGE CLOSING CHAT " + MessageSystem.getUser();
                 writer.println(outgoing);
                 System.out.println(outgoing);
-                String incomingMessage = reader.readLine();
-                System.out.println(incomingMessage);
-                if (incomingMessage.equals("CLIENT PRIVATE MESSAGE CHAT DISCONNECTED")) {
-                    MessageSystem.removePM(user, this);
-                    server.close();
-                    this.dispose();
-                } else {
-                    System.out.println("Error unsent");
-                }
+                
+                MessageSystem.removePM(user, this);
+                server.close();
+                this.dispose();
 
 
             } catch (IOException ex) {
