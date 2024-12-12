@@ -66,12 +66,12 @@ public class ClientListener implements Runnable {
     }
     
     public static void kill(){
-        active = false;
         privateWindowMap.forEach((key, value) -> {
             value.sendDisconnect();
             value.dispose();
         });
         privateWindowMap.clear();
+        active = false;
         System.out.println("ClientListener Killed");
         try {
             Socket self = new Socket("localhost", 2004);
