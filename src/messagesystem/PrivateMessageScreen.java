@@ -118,6 +118,7 @@ public class PrivateMessageScreen extends javax.swing.JFrame {
 
     
     public void sendDisconnect() {
+        System.out.println(disabled.toString());
         if (!disabled) {
             try {
                 Socket server = new Socket(IP, 2004);
